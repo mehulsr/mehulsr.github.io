@@ -1,2 +1,2 @@
-# mehulsmritiraje.github.io
-Portfolio Website in the making
+# mehulsr.github.io
+Portfolio Website
