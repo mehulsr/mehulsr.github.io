@@ -1,0 +1,9 @@
+title: My Personal Blog
+author: Mehul Smriti Raje
+email: mehul.raje@gmail.com
+description: >-
+  Buliding things in AI. Investigating into things I'm curious about.
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
