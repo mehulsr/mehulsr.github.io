@@ -1,6 +1,8 @@
 # Writing-style analysis: *Sum Estimation via Vector Similarity Search*
 **Mussmann, Raje, Tumkur, Messoussi, Hachem & Jacob. arXiv:2601.11765v1 (Jan 2026)**
 
+**Code:** the notebook, helper library and data are in [my Github repo.](https://github.com/mehulsr/mehulsr.github.io/tree/master/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper).
+
 This notebook measures the paper's prose and answers four questions, each with charts:
 
 1. **Word choice, sentence structure and sentence length**
