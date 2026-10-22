@@ -28,7 +28,7 @@ It then covers some extra checks: terminology consistency, whether the abstract'
 The left panel shows the prose word count per section. The right panel shows how much maths each section carries: display equations, plus maths symbols counted straight from the PDF as an independent check.
 
     
-![png](writing_style_analysis_files/writing_style_analysis_5_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_5_0.png)
 
 |  | % of prose words | % of display equations |
 |---|---|---|
@@ -48,7 +48,7 @@ The left panel shows the prose word count per section. The right panel shows how
 Reference points: the US *Plain Language* guidelines aim for an average of 15–20 words. Academic science writing typically averages 22–26 words. Sentences over 35 words are where readers start to lose the thread.
 
     
-![png](writing_style_analysis_files/writing_style_analysis_8_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_8_0.png)
     
 
 > Main text: mean 17.5, median 16, 4% of sentences over 35 words; coefficient of variation 0.55
@@ -77,11 +77,11 @@ Reference points: the US *Plain Language* guidelines aim for an average of 15–
 ### 1b. Word choice: vocabulary, word length and lexical variety
 
     
-![png](writing_style_analysis_files/writing_style_analysis_12_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_12_0.png)
     
 
     
-![png](writing_style_analysis_files/writing_style_analysis_13_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_13_0.png)
     
 
 > Whole-paper MTLD (lexical diversity): 65  (roughly 70-90 is common for scientific prose; higher = more varied vocabulary)
@@ -112,11 +112,11 @@ Reference points: the US *Plain Language* guidelines aim for an average of 15–
 ### 1c. Sentence structure
 
     
-![png](writing_style_analysis_files/writing_style_analysis_17_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_17_0.png)
     
 
     
-![png](writing_style_analysis_files/writing_style_analysis_18_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_18_0.png)
     
 
 **Findings on sentence structure**
@@ -132,7 +132,7 @@ Reference points: the US *Plain Language* guidelines aim for an average of 15–
 The Flesch–Kincaid grade estimates the US school grade needed to follow the prose, computed with maths tokens removed. Here it is paired with how much maths the section carries, because maths is an extra cost that a prose readability formula can't see.
 
     
-![png](writing_style_analysis_files/writing_style_analysis_21_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_21_0.png)
     
 
 The two panels mirror each other. **The sections that read hardest as prose (Abstract, Introduction, Related Work, Discussion: grade 16–20) contain almost no maths. The sections with the easiest prose (3.x and the appendix: grade 4–11) carry 10–26 inline maths expressions per 100 words.** The overall grade is 11.5, but that average hides the trade-off. The only sections easy on *both* counts are 4.2–4.3 and 4.6, the descriptive parts of the experiments. Everywhere else the reader pays either in sentence complexity or in notation. The low grades in Section 3 flatter it, because "Then, ⟨m⟩." scores as easy text.
@@ -140,7 +140,7 @@ The two panels mirror each other. **The sections that read hardest as prose (Abs
 ### 2b. Logical connectives: how explicitly is the reasoning signposted?
 
     
-![png](writing_style_analysis_files/writing_style_analysis_23_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_23_0.png)
     
 
 **Findings.** The reasoning is **explicit where the maths is and implicit where the prose is**. The theory sections and appendix run at 8–10 connectives per 100 words: causal (*since, thus, so*), sequencing (*first, then, finally*) and signposts to lemmas and equations. That is a well-walked proof. The front matter, experiments and related work run at only about 2–3 per 100 words. Those parts read as a sequence of statements, and the reader must infer *why* one sentence follows another. **Contrast markers are among the scarcest types**, even though the paper's main claim is comparative (O(log n) against O(√n), lower error than the combined baseline). Section 4.6 has the most contrast markers (*while, except, unlike*), which is right. But the Introduction states the gap with a single "Unfortunately", and Related Work positions the paper mostly by listing ("In comparison…", "differs"). A sharper "prior methods do X; we do Y, which buys Z" line would make the contribution land faster.
@@ -149,7 +149,7 @@ The two panels mirror each other. **The sections that read hardest as prose (Abs
 The overlap between each sentence's content words (TF-IDF) and those of the sentence before it. High values mean each sentence picks up where the last left off. Dips mark topic jumps.
 
     
-![png](writing_style_analysis_files/writing_style_analysis_25_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_25_0.png)
     
 
 *Sentences with ~zero overlap with the preceding sentence (main text)*
@@ -176,7 +176,7 @@ The overlap between each sentence's content words (TF-IDF) and those of the sent
 Each arc is an explicit reference (Section/Appendix/Figure/Algorithm/Lemma/Theorem/Equation) from where it is written to where its target lives. **Forward** references (above the axis) ask the reader to trust something not yet shown. **Backward** references (below) consolidate.
 
     
-![png](writing_style_analysis_files/writing_style_analysis_27_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_27_0.png)
 
 | Section | 1 | 3.1 | 3.3 | 3.4 | 4.4 | 4.6 | 6 | A.2 | B | C |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -193,7 +193,7 @@ The arc from 6 → C (recall values) is the right way to back a limitation with 
 ### 2e. Concept introduction map: are ideas set up before they are used?
 
     
-![png](writing_style_analysis_files/writing_style_analysis_29_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_29_0.png)
     
 
 **Findings on flow**
@@ -211,7 +211,7 @@ The arc from 6 → C (recall values) is the right way to back a limitation with 
 Hedges soften a claim (*perhaps, likely, approximately, typically, may*). Boosters strengthen it (*prove, provably, novel, significantly, always, simple, key*). Both are counted per 100 words.
 
     
-![png](writing_style_analysis_files/writing_style_analysis_32_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_32_0.png)
     
 
 > Whole paper: 0.68 hedges and 1.82 boosters per 100 words
@@ -226,7 +226,7 @@ Hedges soften a claim (*perhaps, likely, approximately, typically, may*). Booste
 ### 3b. Pacing: how fast does the paper move?
 
     
-![png](writing_style_analysis_files/writing_style_analysis_34_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_34_0.png)
     
 
 *Reading-time model:* a lay reader reads at 200 wpm, spends about 1 min per display equation and about 6 s per inline expression. An expert reads at 250 wpm, spends about 20 s per equation and about 2 s per inline expression. These are rough, but the ratios between sections are what matter.
@@ -257,11 +257,11 @@ Each section is scored on eight components. Each component is min–max normalis
 | New-concept rate | 0.05 | 0.20 | Experts are slowed by *new ideas*, not by vocabulary |
 
     
-![png](writing_style_analysis_files/writing_style_analysis_37_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_37_0.png)
     
 
     
-![png](writing_style_analysis_files/writing_style_analysis_38_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_38_0.png)
 
 |  | Section | Lay density (0-100) | Expert density (0-100) | Lay reading minutes | Expert reading minutes |
 |---|---|---|---|---|---|
@@ -309,7 +309,7 @@ The paper is cut into 15 reading units; the Introduction is split into its motiv
 The **depth** (read closely / skim / optional) is computed from value and density: units with value ≥ 0.7 are read closely, and units with value ≥ 0.4, or with low density for that audience, are skimmed. The **order** is editorial. It follows each audience's natural sequence of questions and respects prerequisites (for example, Results come after Tasks and Baselines). Bar length is the time cost at that depth, and the label is the unit's density index for that audience.
 
     
-![png](writing_style_analysis_files/writing_style_analysis_40_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_40_0.png)
     
 
 **Recommended reading orders**
@@ -339,7 +339,7 @@ The key difference: **lay readers should reach the *results* and the *peaky/flat
 ### 5a. Terminology consistency
 
     
-![png](writing_style_analysis_files/writing_style_analysis_42_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_42_0.png)
     
 
 Inconsistent spellings are small, but they add up. **Open Images / OpenImages**, **top-k / Top-k / TopK**, **data structure / data-structure** and the hyphenation of *exponentially(-)decaying* and *high(-)probability* all vary. Pick one form each, using hyphens only when the compound is used as a modifier ("a high-probability bound", "holds with high probability").
@@ -347,7 +347,7 @@ Inconsistent spellings are small, but they add up. **Open Images / OpenImages**,
 ### 5b. Do the Abstract's claims match the evidence?
 
     
-![png](writing_style_analysis_files/writing_style_analysis_44_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_44_0.png)
     
 
 | Claim (Abstract / Intro) | Where the paper backs it | Verdict |
@@ -380,7 +380,7 @@ Inconsistent spellings are small, but they add up. **Open Images / OpenImages**,
 > Automatic duplicate-word check found: "when when" in Section 4.6
 
     
-![png](writing_style_analysis_files/writing_style_analysis_48_1.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_48_1.png)
     
 
 | Where | As written | Suggested |
@@ -417,7 +417,7 @@ The paper is written in a **lean, confident, engineer-mathematician style**. Sen
 ### Scorecard
 
     
-![png](writing_style_analysis_files/writing_style_analysis_50_0.png)
+![png](/code/2026-10-21-writing-analysis-of-my-sum-estimation-paper/writing_style_analysis_files/writing_style_analysis_50_0.png)
     
 
 | Dimension | Score (1-5) | Why |

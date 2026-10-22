@@ -1,0 +1,246 @@
+# Prose of "Sum Estimation via Vector Similarity Search" (arXiv:2601.11765v1),
+# transcribed from the PDF with the authors' wording (typos included) preserved.
+# Conventions: "## <id> | <label> | <role>" starts a section; ⟨m⟩ stands for an
+# inline math expression; a line "[EQ]" stands for one display equation or
+# algorithm block; "CAPTION:" lines are figure/table captions; "- " lines are
+# bullet items; "§Heading.§" marks a run-in paragraph heading. Footnotes, page numbers and references are omitted.
+
+## Abs | Abstract | front
+Semantic embeddings to represent objects such as image, text and audio are widely used in machine learning and have spurred the development of vector similarity search methods for retrieving semantically related objects. In this work, we study the sibling task of estimating a sum over all objects in a set, such as the kernel density estimate (KDE) and the normalizing constant for softmax distributions. While existing solutions provably reduce the sum estimation task to acquiring ⟨m⟩ most similar vectors, where ⟨m⟩ is the number of objects, we introduce a novel algorithm that only requires ⟨m⟩ most similar vectors. Our approach randomly assigns objects to levels with exponentially-decaying probabilities and constructs a vector similarity search data structure for each level. With the top-k objects from each level, we propose an unbiased estimate of the sum and prove a high-probability relative error bound. We run experiments on OpenImages and Amazon Reviews with a vector similar search implementation to show that our method can achieve lower error using less computational time than existing reductions. We show results on applications in estimating densities, computing softmax denominators, and counting the number of vectors within a ball. Our partially redacted code can be found at URL.
+
+## 1 | 1 Introduction | front
+Over the past decade, machine learning systems have increasingly leveraged semantic embeddings for objects such as words and tokens (Devlin et al., 2019; Peters et al., 2018), sentences and documents (Reimers and Gurevych, 2019; Cer et al., 2018), images (Radford et al., 2021b; Zhai et al., 2023), audio clips (Devnani et al., 2024; Turian et al., 2022), videos (Ashutosh et al., 2023; Chang et al., 2020), and a variety of other objects (Agarwal et al., 2021). Correspondingly, given the importance of retrieval of semantically related objects, there has been significant advances in algorithms for vector similarity search including locality sensitive hashing (LSH) (Indyk and Motwani, 1998; Charikar, 2002), clustering-based search (Johnson et al., 2019), and hierarchical navigable small-world graphs (HNSW) (Malkov and Yashunin, 2020). Owing to the utility and effectiveness of vector similarity search systems, there exist a variety of commercial solutions, typically based on HNSW, and to a lesser extent, clustering-based search (Sukhodolskaya and Vasnetsov, 2025; Johnson et al., 2019).
+In this work, we study a related set of problems that involve computing or estimating a sum over all elements in a dataset. Examples of such a task include kernel-density estimation (KDE) (Charikar et al., 2020; Langrené and Warin, 2018) and computing probabilities for large softmax layers (loglinear models) (Radford et al., 2018, 2021b). Prior work contains two general types of methods: sampling-based estimation based on locality-sensitive hashes (Charikar and Siminelakis, 2017; Spring and Shrivastava, 2018) and methods using a vector similarity search oracle (Mussmann et al., 2017; Karppa et al., 2022). As LSH-based search methods currently underperform other vector similarity search techniques like HNSW (Malkov and Yashunin, 2020), here we focus on the latter type of methods. Such methods compute a simple estimate of the sum using the maximal contributing values (from a vector similarity search) and a uniform random sample. Unfortunately, such methods require ⟨m⟩ similar vectors and random samples, where ⟨m⟩ is the size of the dataset. We introduce a method which can similarly use any maximization oracle but only requires ⟨m⟩ similar vectors.
+In this work, we assume access to a maximization oracle: given a non-negative function ⟨m⟩ (e.g., the exponentiation of the negative squared Euclidean distance for KDE with Gaussian kernel) and a set of ⟨m⟩ objects ⟨m⟩, the oracle builds a data-structure that allows it to quickly compute ⟨m⟩ based on a query ⟨m⟩, and more generally, retrieve the top-k objects. Given such an oracle, our algorithm yields a provably-accurate estimate of ⟨m⟩ using ⟨m⟩ retrieved elements from the maximization oracle. The key idea is to assign each data point to a "level" with exponentially decaying probabilities, as is done for skip-lists (Pugh, 1990) and HNSW (Malkov and Yashunin, 2020), and then build a maximization oracle data-structure for each level. Note that the total number of indexed data points is simply ⟨m⟩ since each data point appears in exactly one data-structure. In total, there are ⟨m⟩ levels, each with a data-structure. For a query ⟨m⟩, we retrieve the top-k objects from each level, and compute an unbiased estimate using a simple algorithm (see details in Section 3.2). We present experimental results showing the effectiveness of our method for sum estimation tasks on Open Images and Amazon Reviews.
+Our contributions are several:
+- Show an estimator of the sum given the top-k elements from each exponentially-sampled level.
+- Show that our estimator is unbiased and prove an error bound that holds with high probability (with respect to the sampling of the levels).
+- Introduce an additional sum estimation application: counting the number of elements within a ball.
+- Present experimental results that demonstrate the effectiveness of our method.
+For the remainder of the paper, we first introduce our setting in Section 2 and present and analyze our algorithm in Section 3 We then describe and present experimental results in Section 4. Finally, we conclude by covering related work and a opportunities and limitations in Sections 5 and 6.
+
+## 2 | 2 Setting | method
+Our overall goal is to estimate ⟨m⟩ for a given query ⟨m⟩, a set of objects ⟨m⟩, and a known non-negative function ⟨m⟩. A concrete example is KDE where ⟨m⟩, ⟨m⟩, and ⟨m⟩ for a given bandwidth ⟨m⟩. For notational simplicity, define ⟨m⟩.
+While we can exactly compute the sum via a linear scan, here, we leverage a black-box maximization oracle, for example a vector similarity search technique, which, given a pre-computed data-structure, can empirically be much faster than a linear scan. Precisely, we assume access to a maximization oracle that can compute ⟨m⟩ efficiently. For KDE, note that ⟨m⟩ is maximized where the Euclidean Distance between ⟨m⟩ and ⟨m⟩ is minimized.
+A central idea for our work is that each element ⟨m⟩ is randomly assigned a "level" ⟨m⟩ and we build a maximization data-structure for each level. If we define ⟨m⟩ as the data elements at level ⟨m⟩, then our maximization oracle can compute ⟨m⟩ efficiently. When indexing data points, we sample the level for each data point independently as a geometric random variable with ⟨m⟩, so ⟨m⟩.
+CAPTION: Figure 1: An illustration of the proof of the bound on the size of ⟨m⟩. The expected number of elements at every level is shown in blue. The minimum with ⟨m⟩ is shown in dark blue. There are ⟨m⟩ levels with more than ⟨m⟩ elements in expectation, and the remaining levels have less than ⟨m⟩ elements in expectation.
+
+## 3 | 3 Method & Analysis | method
+For ease of analysis, we will fix a particular query ⟨m⟩, and define ⟨m⟩ as the element ⟨m⟩ with the ⟨m⟩ largest ⟨m⟩ value, breaking ties randomly. Therefore, ⟨m⟩ and ⟨m⟩. For convenience, define ⟨m⟩ and ⟨m⟩. Thus, our goal is to estimate ⟨m⟩ with access to ⟨m⟩.
+
+## 3.1 | 3.1 Union of top-k | method
+Define the union of the top ⟨m⟩ elements from all levels as ⟨m⟩. Our estimate will be a function of ⟨m⟩. Intuitively, the size of ⟨m⟩ will scale proportionally with ⟨m⟩, the max elements per level, and ⟨m⟩, the number of non-empty levels.
+Proposition 3.1. ⟨m⟩
+Proof.
+[EQ]
+Define ⟨m⟩ as the highest level where ⟨m⟩. Then, ⟨m⟩. For a visualization of the contribution of different levels within the proof, see Figure 1.
+
+## 3.2 | 3.2 Unbiased estimate | method
+For a given ⟨m⟩, what is the probability that ⟨m⟩? This probability becomes easy to compute if we condition on ⟨m⟩. Define ⟨m⟩ as the number of top-i elements assigned to level ⟨m⟩. If ⟨m⟩, then there is still "availability" on level ⟨m⟩ for the ⟨m⟩ largest element. Define ⟨m⟩ as the indicator ⟨m⟩, which is equivalent to ⟨m⟩. Define ⟨m⟩ as the probability that ⟨m⟩ is sampled as such a level: ⟨m⟩.
+We can see that conditioned on ⟨m⟩, ⟨m⟩. This motivates us to estimate ⟨m⟩ with the unbiased estimate, ⟨m⟩.
+[EQ]
+Since ⟨m⟩ if and only if ⟨m⟩, there is zero contribution from elements outside of ⟨m⟩. Furthermore, perhaps surprisingly, we can compute ⟨m⟩ for elements in ⟨m⟩ based on just the elements of ⟨m⟩. In particular, if we iterate through ⟨m⟩ in order of decreasing ⟨m⟩ value, we can decrease the probability ⟨m⟩ whenever a level becomes full (⟨m⟩). See Algorithm 1 for the simple algorithm that runs in ⟨m⟩ time.
+
+## 3.3 | 3.3 High-probability bound | theory
+In this section, we give our main analytical result: a high probability bound on the relative error of our method. We walk through the proof, though the proofs of a few lemmas are deferred to Appendix A.
+Theorem 3.2. For any ⟨m⟩ such that ⟨m⟩ set ⟨m⟩. Then, with probability ⟨m⟩,
+[EQ]
+As an example, for a dataset where ⟨m⟩, ⟨m⟩, and ⟨m⟩, then ⟨m⟩ and ⟨m⟩, and thus, with 95% confidence, the relative error of our estimate is less than 0.1631.
+Proof. We begin with showing an event that holds with high probability.
+Lemma 3.3. For any ⟨m⟩ and ⟨m⟩, set ⟨m⟩. Then, ⟨m⟩ and with probability ⟨m⟩,
+[EQ]
+The proof, found in Appendix A.1, follows that of a Chernoff bound since ⟨m⟩. Intuitively, Equation 3 means that none of the levels fill up "too quickly". This will later allow us to lower bound ⟨m⟩, Our main step will be to apply a martingale version of Bernstein's inequality. The inequality is stated below, which is an adaptation of a standard martingale version of Bernstein's inequality (Dzhaparidze and Van Zanten, 2001). More details can be found in Appendix A.3.
+Theorem 3.4. Suppose ⟨m⟩ is a martingale with filtration ⟨m⟩ so ⟨m⟩ is a function of ⟨m⟩ and ⟨m⟩. Assume ⟨m⟩ with probability 1. Then, for any ⟨m⟩, with ⟨m⟩ as the sum conditional variance ⟨m⟩,
+[EQ]
+Noting that ⟨m⟩ and defining ⟨m⟩, our goal is a high probability bound on ⟨m⟩.
+We next prove two lemmas to bound ⟨m⟩ and ⟨m⟩ to assist with bounding ⟨m⟩ and its variance.
+Lemma 3.5. If Equation 3 holds, then for ⟨m⟩, ⟨m⟩, and for ⟨m⟩, ⟨m⟩
+Proof. If ⟨m⟩, for any ⟨m⟩, ⟨m⟩, so from Equation 3, ⟨m⟩. Thus, ⟨m⟩ and ⟨m⟩. If ⟨m⟩, for any ⟨m⟩, ⟨m⟩, so from Equation 3, ⟨m⟩. ⟨m⟩.
+Lemma 3.6. ⟨m⟩
+Proof. Because ⟨m⟩ are positive and monotonically nondecreasing, ⟨m⟩. Therefore, ⟨m⟩.
+To bound ⟨m⟩, we examine three cases assuming Equation 3 holds:
+- If ⟨m⟩, ⟨m⟩ and ⟨m⟩, so ⟨m⟩ and ⟨m⟩.
+- If ⟨m⟩ and ⟨m⟩, ⟨m⟩.
+- If ⟨m⟩ and ⟨m⟩, ⟨m⟩.
+In any case, ⟨m⟩ if Equation 3 holds.
+A variance calculation yields the sum conditional variance as,
+[EQ]
+Under Equation 3, Lemma 3.5 implies that ⟨m⟩ for ⟨m⟩, so the first ⟨m⟩ terms of the sum are zero. Then, using Lemma 3.5 and Lemma 3.6, the sum conditional variance is
+[EQ]
+We show in Appendix A.2 that a more careful argument yields ⟨m⟩. Invoking Lemma 3.3 with failure probability ⟨m⟩ and Theorem 3.4 with failure probability ⟨m⟩, we see that with probability ⟨m⟩
+[EQ]
+The result follows after dividing both sides by ⟨m⟩.
+
+## 3.4 | 3.4 Control variates | theory
+Note that when all ⟨m⟩ are equal, we can multiply any ⟨m⟩ by the known quantity ⟨m⟩ to get a perfect estimate. However, our algorithm will be imperfect since ⟨m⟩ is ⟨m⟩ on average, but it will typically be an over- or under-estimate. Here, we introduce a correction term.
+Since ⟨m⟩, we can form an unbiased estimate ⟨m⟩. This is a control variates approach for variance reduction. In Appendix B, we motivate selecting ⟨m⟩ as the average value of the lower half of the ⟨m⟩ values: ⟨m⟩, which can be estimated from a uniform random sample (the union of elements on unfilled levels is a uniform random sample).
+
+## 4 | 4 Experiments | experiments
+In this section, we evaluate our proposed method against baseline methods with several instantiations of ⟨m⟩, ⟨m⟩, and ⟨m⟩. A key consideration is that a method needs to perform well both when ⟨m⟩ is "peaky" (a few values of ⟨m⟩ contribute most of ⟨m⟩) and when ⟨m⟩ is "flat" (the variation of ⟨m⟩ is small).
+Unless otherwise noted, all experiments use Qdrant (Apache 2.0 license) as the vector similarity search implementation which ran on a single r5.4xlarge AWS instance with 300 GB RAM and 16 cores. All other jobs were run on i3.16xlarge AWS instances with 488 GB RAM and 64 cores. The one-time encoding took approximately a week, and the final set of experiments required several hours. To assist with dataset and model loading, we extensively use Hugging Face (Apache 2.0 license).
+
+## 4.1 | 4.1 Tasks | experiments
+§Kernel density estimation.§ Kernel Density Estimation (KDE) (Parzen, 1962) is a non-parametric method for estimating a probability density function (pdf) from samples. It is widely used in applications such as outlier detection, clustering, and various density-based data selection strategies. KDE estimates the density at a point ⟨m⟩ by summing probabilistic contributions from all vectors ⟨m⟩ in the dataset. For the common Gaussian kernel, the kernel density estimate is
+[EQ]
+where ⟨m⟩ is the vector dimension and ⟨m⟩ is the bandwidth parameters that controls the smoothness of the pdf. ⟨m⟩ which is monotonically decreasing with respect to the Euclidean distance and is thus amenable to optimizing with vector similarity search. Here, ⟨m⟩ is "peaky" for small ⟨m⟩ and "flat" for large ⟨m⟩.
+§Softmax normalization constant.§ The softmax function models probabilities over discrete sets, for example, data points in a dataset or batch, labels for classification, and tokens for language modeling. The general form is that ⟨m⟩ where ⟨m⟩ parametrizes the distribution. In order to compute probabilities, we need to know the normalizing constant, also called the partition function, ⟨m⟩. Computing this quantity can be computationally expensive for large sets ⟨m⟩, for example large output spaces for classification and language modeling and large sets of data points in contrastive learning. Here, ⟨m⟩ which is monotonically increasing with respect to the dot product and can thus be optimized via vector similarity search. Here, ⟨m⟩ is "peaky" for small ⟨m⟩ and "flat" for large ⟨m⟩.
+§Counting.§ The counting problem involves estimating the number of vectors from a dataset that are within a radius ⟨m⟩ of a vector ⟨m⟩. The count is equal to ⟨m⟩ with ⟨m⟩. ⟨m⟩ is monotonically decreasing with respect to the Euclidean distance. Here, ⟨m⟩ is "peaky" for small ⟨m⟩ and "flat" for large ⟨m⟩.
+
+## 4.2 | 4.2 Models | experiments
+§ResNet-50.§ For image embeddings, we use the last layer of a ResNet-50 model (He et al., 2016) pre-trained on ImageNet, retrieved via torchvision (BSD 3-Clause License). Due to pre-training, the embeddings are rich, generic visual features.
+§CLIP ViT-L/14@336px.§ For multimodal embeddings for the softmax experiment, we use OpenAI's CLIP ViT-L/14@336px image encoder (Radford et al., 2021a) (MIT license), which is Vision Transformer (ViT) that takes 336 × 336 images as input. This model is trained on a large and diverse dataset of image-text pairs that learns a shared embedding space for visual and textual modalities. We normalize these embeddings for our experiment, as is done in the CLIP loss function.
+§DistilBERT-base-uncased.§ For our text-based experiments, we use the final hidden state of the distilbert-base-uncased model (Sanh et al., 2019) (Apache 2.0 License). DistilBERT is a smaller (40% fewer parameters) and faster (processing 60% more text) variant of BERT, obtained through knowledge distillation from BERT, that retains 97% of BERT's language understanding performance. The model is trained on the same corpus as BERT (English Wikipedia and BookCorpus).
+
+## 4.3 | 4.3 Datasets | experiments
+§Open Images.§ The Open Images dataset v7 (Kuznetsova et al., 2020) (Annotations: CC BY 4.0, Images: CC BY 2.0) contains over 9 million natural images with image-level labels. For our experiments, we use 6.74 million images from the train set. Each image contains multiple class labels annotated by human or machine, with train dataset having about 20,000 classes.
+§Flickr30k Dataset.§ The Flick30k dataset (Young et al., 2014) (CC0 1.0) contains approximately 30k Flickr images, each with 5 crowd-sourced captions. In this work, we do not use the images, only the captions.
+§Amazon Reviews (Kindle Store).§ The McAuley-Lab/Amazon-Reviews-2023 dataset (Hou et al., 2024) (MIT License) is a large collection of product reviews spanning numerous categories on Amazon. For our experiments, we use a random sample of 10 million from the raw_review_Kindle_Store subset (downloaded via Hugging Face). These reviews are for digital book purchases on the Kindle Store. We encode the review body for our experiments.
+
+## 4.4 | 4.4 Baselines | experiments
+§Top-k.§ The Top-k method approximates sums by only summing the ⟨m⟩ elements with the largest contribution. For query ⟨m⟩, sum estimate is
+[EQ]
+where ⟨m⟩ is defined in Section 2. This method performs well when a few values of ⟨m⟩ contribute most of ⟨m⟩ (⟨m⟩ is "peaky").
+§Random sample.§ The Random Sampling method uniformly samples a subset ⟨m⟩ of size ⟨m⟩ from ⟨m⟩ without replacement and uses it to estimate the sum. For query ⟨m⟩, the estimate is
+[EQ]
+This method performs well when the variation of ⟨m⟩ is small (⟨m⟩ is "flat").
+§Combined top-k and Random Sample.§ Noting that top-k fails when ⟨m⟩ is "flat" and random sampling fails when ⟨m⟩ is "peaky", (Mussmann et al., 2017; Karppa et al., 2022) introduce a combination method to try to get the best of both worlds. For query ⟨m⟩ and random sample ⟨m⟩ of size ⟨m⟩, we can define ⟨m⟩, and the use the unbiased estimate
+[EQ]
+
+## 4.5 | 4.5 Experimental setup | experiments
+For evaluating our algorithm, we choose ⟨m⟩, and for the other methods, we choose ⟨m⟩ and ⟨m⟩. For each task below, we choose a wide range of task hyperparameters to study the performance for "peaky" ⟨m⟩, "flat" ⟨m⟩, and the spectrum in-between. Results are reported as the median over 30 queries. To prevent Qdrant from caching queries, we sample a fresh set of ⟨m⟩ for each method.
+§Kernel density estimation.§ We provide results for both ResNet-50 embeddings of Open Images and DistilBERT embeddings of the chosen subset of Amazon Reviews dataset. In both cases, we randomly sample an embedding as the query at which to compute the kernel density estimate.
+§Softmax normalization constant.§ We provide results for CLIP embeddings of Open Images, where the query vectors are the CLIP text embedding of randomly sample human-provided captions for images from the Flickr30k dataset. Based on the form of the CLIP loss, we can interpret the softmax probability for an image as the probability that the text is paired with that image.
+§Counting.§ Similar to KDE, we provide results for ResNet-50 embeddings of Open Images and DistilBERT embeddings of Amazon Reviews.
+CAPTION: Figure 2: (a) Median relative error for KDE and various bandwidths illustrate the flat to peaky spectrum. (b) Comparison of our analytical upper bound and an empirical 95% confidence interval, computed using tail probabilities of the Binomial(100, 0.95) distribution.
+
+## 4.6 | 4.6 Results | experiments
+To illustrate the performance of methods with respect to the flatness/peakiness, we present the median relative error as a function of the bandwidth for KDE on Open Images for the four methods in Figure 2(a). We can see that random sampling performs well for large bandwidth ("flat" ⟨m⟩) but fails for small bandwidth ("peaky" ⟨m⟩), while the reverse is true for the top-k baseline. The combination method and our method have low error when when ⟨m⟩ is "flat" or "peaky", but higher error in-between. Plots for the other tasks are provided in Appendix C.
+To demonstrate the practicality of our method, we show a trade-off plot of the relative error and the total runtime for the 5 task/dataset pairs in Figure 3. Since we show the performance at the worst task parameter (flatness vs peakiness), random sampling and top-k always have a relative error of around 1. Between our method and the combination method, we see that our method achieves lower error for the same runtime, except in one case where it is approximately equal (Figure 3(b)). Note that the runtime for our method does not scale linearly with ⟨m⟩; in Section 6 we discuss a relatively straightforward opportunity to integrate HNSW methods and our proposed method to improve the runtime, taking advantage of the fact that HNSW also uses random levels with exponentially-decaying probabilities.
+Finally, to illustrate our bound, we present results (see Figure 2(b)) for a synthetic setting where ⟨m⟩ is either 0 or 1 and vary the number of ⟨m⟩ yielding 1. Due to the simple form, we can analytically compute top-k with perfect recall, and don't use Qdrant for this experiment. We run our algorithm for 100 runs with ⟨m⟩ and present an empirical confidence interval for the 95th-percentile of the relative error in addition to our analytic upper bound from the beginning of Section 3.3. Unlike most theoretical bounds, ours is at most loose by a factor of 2.
+
+## 5 | 5 Related Work | context
+§Combining top-k and random sampling.§ Mussmann et al. (2017) introduced a simple way to combine vector similarity search algorithms and random sampling: sum the k-largest values and estimate the remaining ⟨m⟩ elements via random sampling. Mussmann et al. (2017) provides a theoretical guarantee for ⟨m⟩ relative error given ⟨m⟩ top elements and ⟨m⟩ random samples. This idea was applied to learning and inference of the softmax function in deep neural networks (Levy et al., 2018) and was recently re-discovered (Karppa et al., 2022). In comparison, our proposed algorithm requires ⟨m⟩ top elements.
+§LSH sampling and hashing-based estimators.§ Locality sensitive hashing (LSH) (Indyk and Motwani, 1998; Charikar, 2002; Lv et al., 2007; Andoni and Indyk, 2008; Andoni et al., 2015) is a set of vector similarity search techniques that are perhaps the only class of methods which have theoretical guarantees (and avoid an exponential dependence on the dimension), though clustering-based methods and proximity-graph-based methods empirically perform much better. For the sum estimation task studied in this paper, two papers introduced the idea of using importance sampling and LSH for two different settings: referred to as LSH sampling (Spring and Shrivastava, 2018) and hashing-based estimators Charikar and Siminelakis (2017). Follow-up work to LSH sampling extended the method to additional applications (Spring and Shrivastava, 2020; Coleman and Shrivastava, 2020). For hashing-based estimators, the idea has implementations (Siminelakis et al., 2019) and improvements (Backurs et al., 2019; Charikar and Siminelakis, 2019; Charikar et al., 2020; Qin et al., 2022), including using geometrically-sampled levels (Charikar et al., 2020), an idea found in this work as well. This paper differs in that we can use any vector similarity search method, though we do not get any complete (non-oracle) theoretical guarantees.
+CAPTION: Figure 3: Trade-off plot comparing our proposed algorithm against the baselines. For the y-axis, we report the median relative error at the task parameter value (e.g., bandwidth, temperature) that maximizes it. Random and TopK have a median relative error close to 1, so it is cutoff in the plot. We include 95% confidence intervals for the median (both x-axis and y-axis) using tail probabilities of the Binomial(30, 0.5) distribution.
+
+## 6 | 6 Discussion | context
+§Limitation of black-box maximization oracle approach.§ One limitation of our use of a black-box maximization oracle in the design of the algorithm is that our performance guarantee is in terms of the number of retrieved similar vectors, rather than total runtime. We chose this angle due to the large empirical gap between heuristic vector similarity search techniques and those with theoretical guarantees. Additionally, vector similarity search techniques are typically approximate rather than exact, and have precision/recall below 100% (see recall values for our experiments in Appendix C). Because the retrieval errors will depend on many factors including the properties of the data and the vector similarity search technique, for simplicity, the theoretical motivation and analysis of our method assumes perfect recall. A direction for future work would be to formulate a realistic assumption on the retrieval errors that still permits a relative error guarantee for our method.
+§Opportunity for integration of HNSW and our method.§ In this paper, we describe building a separate data-structure for each exponentially-sampled level and performing a maximization query for each level in parallel. Because HNSW methods make use of randomly assigned levels with exponentially decaying probabilities, and for each query execution iteratively find a (approximate) most similar vector within each level, it is likely that a slightly modified HNSW algorithm could return the similar vectors at every level for a single query, significantly cutting the total computation time of our method.
+
+## A | A.1 Chernoff-style lemma | appendix
+In this appendix, we prove a few lemmas used in the proof of Theorem 3.2.
+Lemma 3.3. For any ⟨m⟩ and ⟨m⟩, set ⟨m⟩. Then, ⟨m⟩ and with probability ⟨m⟩,
+[EQ]
+Proof. First, for the bound on ⟨m⟩, note that
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+For the high probability bound, we begin by noting a standard tail bound (a Chernoff bound with the quadratic lower bound of the KL-divergence) for Binomial random variables, that for ⟨m⟩, ⟨m⟩. For any ⟨m⟩,
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+We can thus take a union bound over the first ⟨m⟩ levels. For the remaining levels:
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+Using a union bound for the first ⟨m⟩ levels and for all the remaining levels, we can see that ⟨m⟩.
+
+## A.2 | A.2 Tighter variance bound | appendix
+Lemma A.1. ⟨m⟩
+Proof. Define
+[EQ]
+for ⟨m⟩ and ⟨m⟩. First we prove some helpful lemmas:
+Lemma A.2. ⟨m⟩
+Proof. If we define ⟨m⟩ for convenience, then ⟨m⟩.
+[EQ]
+[EQ]
+Lemma A.3. ⟨m⟩
+Proof.
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+Lemma A.4. For any ⟨m⟩, ⟨m⟩
+Proof.
+[EQ]
+[EQ]
+[EQ]
+Lemma A.5. If equation 3 holds, then for any ⟨m⟩
+[EQ]
+Proof. First we recall Lemma 3.5 implies ⟨m⟩ for ⟨m⟩ and ⟨m⟩ if ⟨m⟩. If ⟨m⟩, the sum is 0 and we're done. Otherwise, write ⟨m⟩ for ⟨m⟩ and ⟨m⟩.
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+Finally, we can combine it all together,
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+
+## A.3 | A.3 Bernstein restatement | appendix
+Dzhaparidze and Van Zanten (2001) cites existing work to state the standard martingale version of Bernstein's inequality:
+Theorem A.6 (Martingale version of Bernstein's inequality). Let ⟨m⟩ be a martingale difference sequence with respect to filtration ⟨m⟩, so ⟨m⟩. If ⟨m⟩ with probability 1 and ⟨m⟩ is finite, then,
+[EQ]
+From this, we can prove our restatement,
+Theorem 3.4. Let ⟨m⟩ be a martingale difference sequence with respect to filtration ⟨m⟩, so ⟨m⟩. Suppose ⟨m⟩ with probability 1 and ⟨m⟩ is finite, Then, for any ⟨m⟩,
+[EQ]
+Proof. If we invoke Theorem A.6 with ⟨m⟩,
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+
+## B | B Correction-term choice | appendix
+First, we show that averaging the smallest function values yields the same value of ⟨m⟩ for Bernstein's inequality (Theorem 3.4).
+Proposition B.1. For any integer ⟨m⟩, if Equation 3 holds and ⟨m⟩, then ⟨m⟩.
+Proof. If ⟨m⟩, then ⟨m⟩ and ⟨m⟩ is positive. Thus, ⟨m⟩ (last inequality from main text). If ⟨m⟩, then ⟨m⟩, and we can repeat the argument (showing ⟨m⟩) in the main text. We know ⟨m⟩ since ⟨m⟩ is monotonically decreasing.
+Using ⟨m⟩ as the original sum conditional variance (Equation 5) and ⟨m⟩ as the sum conditional variance with ⟨m⟩,
+[EQ]
+We identify a condition on ⟨m⟩ so that ⟨m⟩,
+Proposition B.2. If ⟨m⟩, then ⟨m⟩.
+Proof.
+[EQ]
+[EQ]
+The condition on ⟨m⟩ implies
+[EQ]
+which, after multiplying by ⟨m⟩, implies the result.
+Finally, we can combine the form of ⟨m⟩ from Proposition B.1 and the constraint from Proposition B.2 to solve for ⟨m⟩:
+[EQ]
+⟨m⟩ roughly scales as ⟨m⟩ so we can solve the following equation:
+[EQ]
+[EQ]
+This holds for all possible ⟨m⟩ if and only if,
+[EQ]
+[EQ]
+[EQ]
+[EQ]
+We can minimize the left side and satisfy the constraint if ⟨m⟩. This motivates setting ⟨m⟩ as the average of the smaller half of the ⟨m⟩ values.
+CAPTION: Table 1: Recall for TopK (without levels)
+
+## C | C Full results | appendix
+Here, we present the remaining experimental results. The median relative error as a function of the setting parameter for the settings other than Image KDE (Figure 2(a)) are shown in Figure 4. Note that Random performs best in flat cases and TopK performs best in peaky cases.
+Figure 5 shows the recall values for a few values of ⟨m⟩ at different levels. We only plot levels where the number of points at the level is greater than ⟨m⟩. We show error bars of two standard errors. See Figure 1 for the recall values for TopK without levels, also with plus or minus two standard errors.
+CAPTION: Figure 4: Median relative error for various settings as a function of the setting parameter (bandwidth, radius, temperature) to illustrate the flat to peaky spectrum. For the counting tasks, the lines are not plotted when more than 75% of the runs have ⟨m⟩ which gives indeterminate relative error. In the other cases, the median is only taken with respect to runs with ⟨m⟩.
+CAPTION: Figure 5: The recall as a function of the level for different values of ⟨m⟩ for different settings. We only plot levels where the number of points at the level is greater than ⟨m⟩. The error bars are two standard errors.
