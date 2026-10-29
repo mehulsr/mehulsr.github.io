@@ -1,0 +1,191 @@
+{
+  "_meta": {
+    "compiled_on": "2026-10-26",
+    "geography": "San Francisco Bay Area / Silicon Valley, USA",
+    "currency": "USD",
+    "tax_year": 2026,
+    "note": "Every number used anywhere in the notebook is declared here with a source, an as-of date and a confidence tier. Tier A = primary filing / government release. Tier B = large reputable private dataset. Tier C = secondary reporting or practitioner benchmark; treat as indicative only.",
+    "confidence_tiers": {
+      "A": "Primary source: SEC filing, BLS/IRS/EDD release, or a survey publisher's own report.",
+      "B": "Large private dataset published by the data owner (levels.fyi, KFF, Carta, Vanguard, Cushman & Wakefield).",
+      "C": "Secondary reporting, practitioner benchmark, or a derived estimate. Wide error bars."
+    }
+  },
+
+  "compensation": {
+    "levels_fyi_bay_area_swe_all_levels": {
+      "value": {"p25": 206000, "p50": 280000, "p75": 384000, "p90": 512000},
+      "unit": "USD annual total compensation",
+      "n": 12061,
+      "as_of": "2026-10-27",
+      "confidence": "B",
+      "source": "levels.fyi — Software Engineer Salary in San Francisco Bay Area",
+      "url": "https://www.levels.fyi/t/software-engineer/locations/san-francisco-bay-area",
+      "note": "Self-reported, verification-encouraged. Skews toward large public tech employers and toward people who are happy with their offer; treat the median as an upper-ish estimate of the true Bay Area market median."
+    },
+    "levels_fyi_google_bay_area_swe_by_level": {
+      "unit": "USD per year",
+      "as_of": "2026-10-26",
+      "confidence": "B",
+      "source": "levels.fyi — Google Software Engineer Salary, San Francisco Bay Area",
+      "url": "https://www.levels.fyi/companies/google/salaries/software-engineer/locations/san-francisco-bay-area",
+      "note": "'stock' is levels.fyi's FIRST-YEAR stock number, which for a front-loaded vest can exceed the annualised grant value. Company-wide submission count is 23,589 across all locations.",
+      "value": {
+        "L3": {"total": 231000, "base": 166000, "stock_year1": 44300, "bonus": 20100},
+        "L4": {"total": 358000, "base": 204000, "stock_year1": 123000, "bonus": 30900},
+        "L5": {"total": 442000, "base": 241000, "stock_year1": 176000, "bonus": 25000},
+        "L6": {"total": 684000, "base": 283000, "stock_year1": 338000, "bonus": 62700}
+      }
+    },
+    "levels_fyi_peer_benchmarks": {
+      "unit": "USD annual total compensation, SF Bay Area",
+      "as_of": "2026-10",
+      "confidence": "B",
+      "source": "levels.fyi company pages (Scale AI n=181, Amazon)",
+      "url": "https://www.levels.fyi/companies/scale-ai/salaries/software-engineer/locations/san-francisco-bay-area",
+      "value": {
+        "Scale AI L3": 238000, "Scale AI L4": 294000, "Scale AI L5": 543000,
+        "Amazon SDE I (L4)": 184000, "Amazon SDE II (L5)": 310000
+      }
+    }
+  },
+
+  "bls_ecec": {
+    "reference_period": "June 2026",
+    "release": "USDL-26-1494, published 2026-09-09",
+    "confidence": "A",
+    "source": "U.S. Bureau of Labor Statistics — Employer Costs for Employee Compensation, June 2026, Table 4",
+    "url": "https://www.bls.gov/news.release/pdf/ecec.pdf",
+    "unit": "USD per hour worked / percent of total compensation",
+    "private_industry_all": {
+      "total_compensation": 46.89, "wages_and_salaries": 32.82, "total_benefits": 14.07,
+      "paid_leave": 3.54, "supplemental_pay": 1.88, "insurance": 3.69,
+      "retirement_and_savings": 1.57, "legally_required": 3.40,
+      "pct": {"wages": 70.0, "benefits": 30.0, "paid_leave": 7.5, "supplemental": 4.0, "insurance": 7.9, "retirement": 3.3, "legally_required": 7.2}
+    },
+    "professional_and_related_occupations": {
+      "total_compensation": 73.69, "wages_and_salaries": 50.98, "total_benefits": 22.71,
+      "paid_leave": 6.78, "supplemental_pay": 2.90, "insurance": 5.47,
+      "retirement_and_savings": 2.75, "legally_required": 4.81,
+      "pct": {"wages": 69.2, "benefits": 30.8, "paid_leave": 9.2, "supplemental": 3.9, "insurance": 7.4, "retirement": 3.7, "legally_required": 6.5}
+    },
+    "note": "This is the national benchmark the whole model is calibrated against. For professional occupations, benefits are 30.8% of total compensation, i.e. a 44.5% load on wages. BLS counts paid leave and supplemental pay as 'benefits'; in a salaried tech job those are already inside the salary and bonus lines, so the notebook excludes them to avoid double-counting."
+  },
+
+  "payroll_taxes_2026": {
+    "social_security": {"employer_rate": 0.062, "wage_base": 184500, "max_employer": 11439, "confidence": "A", "source": "SSA / IRS 2026 cost-of-living adjustments", "url": "https://www.ssa.gov/oact/cola/cbb.html", "note": "Wage base resets per employer; a mid-year hire who already hit the cap elsewhere still costs the new employer the full 6.2% up to $184,500."},
+    "medicare": {"employer_rate": 0.0145, "wage_base": null, "confidence": "A", "source": "IRS", "url": "https://www.irs.gov/taxtopics/tc751", "note": "No cap. The additional 0.9% Medicare surtax above $200k is EMPLOYEE-paid, not an employer cost."},
+    "futa": {"gross_rate": 0.060, "wage_base": 7000, "standard_net_rate": 0.006, "california_effective_rate_2025": 0.018, "california_2026_status": "unsettled until the November 2026 IRS credit-reduction notice", "confidence": "B", "source": "IRS FUTA credit reduction states; California payroll guidance", "url": "https://www.irs.gov/businesses/small-businesses-self-employed/futa-credit-reduction", "note": "California has been a credit-reduction state. 2025 ran at a 1.2% reduction => 1.8% effective. Sources disagree on 2026 (0.3% to 5.3% cited); the model defaults to 1.8% and sweeps 0.6%-2.7%."},
+    "ca_sui": {"wage_base": 7000, "new_employer_rate": 0.034, "experience_rated_range": [0.015, 0.062], "confidence": "B", "source": "California EDD, Schedule F+", "url": "https://edd.ca.gov/en/payroll_taxes/rates_and_withholding/", "note": "Only the first $7,000 of wages, so this is a flat ~$238 per head at the new-employer rate, not a percentage of a $200k salary."},
+    "ca_ett": {"rate": 0.001, "wage_base": 7000, "max": 7, "confidence": "B", "source": "California EDD Employment Training Tax", "url": "https://edd.ca.gov/en/payroll_taxes/rates_and_withholding/"},
+    "ca_sdi": {"employee_rate_2026": 0.013, "employer_cost": 0, "confidence": "B", "source": "California EDD State Disability Insurance", "url": "https://edd.ca.gov/en/disability/Contribution_Rates_and_Benefit_Amounts/", "note": "EMPLOYEE-paid in California. Included here only so it is explicitly excluded from the employer cost model — it is a common double-count."},
+    "workers_compensation": {"rate_range_office_tech": [0.002, 0.008], "default_rate": 0.004, "confidence": "C", "source": "Practitioner benchmark for CA class code 8810 (clerical) / 8859 (software development)", "url": "https://www.dir.ca.gov/dwc/", "note": "Low-hazard office class codes. Rates vary by carrier, experience mod and payroll size."},
+    "irs_401a17_comp_limit_2026": {"value": 360000, "confidence": "B", "source": "IRS 2026 cost-of-living adjustments as summarised by benefits counsel (Mayer Brown, Venable, Plante Moran)", "url": "https://www.mayerbrown.com/en/insights/publications/2025/12/irs-annual-limits-for-benefit-plans-2026-cost-of-living-adjustments", "note": "Caps the compensation on which a 401(k) match can be computed. Up from $350,000 in 2025."}
+  },
+
+  "benefits": {
+    "kff_2025_premiums": {
+      "unit": "USD annual premium",
+      "as_of": "2025",
+      "confidence": "B",
+      "source": "KFF 2025 Employer Health Benefits Survey",
+      "url": "https://www.kff.org/health-costs/2025-employer-health-benefits-survey/",
+      "value": {
+        "single_total": 9325, "single_worker_contribution": 1440, "single_employer_share": 7885,
+        "family_total": 26993, "family_worker_contribution": 6850, "family_employer_share": 20143,
+        "yoy_single": 0.05, "yoy_family": 0.06
+      },
+      "note": "National averages. Employer share is total premium minus worker contribution. The notebook trends these forward one year at the surveyed growth rate and applies a Bay Area / tech-employer uplift, because SV employers buy richer plans and cover more of the dependent premium."
+    },
+    "bay_area_tech_premium_uplift": {"default": 1.15, "range": [1.00, 1.35], "confidence": "C", "source": "Derived: California Health Benefits Survey 2025 (CHCF) plus typical SV plan-richness and dependent-coverage practice", "url": "https://www.chcf.org/resource/california-health-benefits-survey-2025/"},
+    "vanguard_401k_match": {"average_promised_pct_of_pay": 0.047, "median_promised_pct_of_pay": 0.040, "confidence": "B", "as_of": "2025", "source": "Vanguard, How America Saves 2025 (via PLANSPONSOR / PlanAdviser coverage)", "url": "https://www.plansponsor.com/vanguard-participation-default-rates-reach-record-highs/", "note": "This is the PROMISED match. Realised employer cost is lower because not every employee defers enough to capture the full match. The model applies a capture rate."},
+    "match_capture_rate": {"default": 0.80, "range": [0.65, 0.95], "confidence": "C", "note": "Share of the promised match actually paid out, after non-participants and under-deferrers. High in SV tech because of auto-enrolment and high pay."},
+    "ancillary_annual_employer_cost": {
+      "confidence": "C",
+      "note": "Practitioner benchmarks for a Bay Area tech employer, blended across single/family tiers. Each is a point estimate with wide error bars; the Monte Carlo section varies them.",
+      "value": {
+        "dental": 850, "vision": 170, "life_add": 250, "std_ltd": 500,
+        "eap_mental_health": 700, "hsa_employer_contribution": 750,
+        "wellness_fitness_stipend": 600, "commuter": 900, "free_meals": 5000,
+        "home_office_stipend": 500, "phone_internet_stipend": 900,
+        "learning_development": 1500, "fertility_family_building": 1200
+      }
+    },
+    "parental_leave": {"weeks_default": 12, "annual_take_up_rate": 0.08, "confidence": "C", "note": "Cost modelled as weeks x weekly salary x the share of the workforce taking leave in a given year. Unlike most benefits this scales with salary."},
+    "ca_pto_accrual_liability": {"pct_of_salary": 0.006, "range": [0.0, 0.015], "confidence": "C", "note": "California requires accrued, unused vacation to be paid out at termination, so an accruing PTO balance is a real growing liability. Unlimited-PTO policies avoid the accrual but are not free — they trade the liability for higher average days taken."},
+    "immigration_sponsorship": {"one_time_cost_range": [8000, 25000], "default_one_time": 14000, "confidence": "C", "note": "H-1B filing plus counsel, or a green-card process (PERM + I-140 + I-485). Amortised over expected tenure in the model."}
+  },
+
+  "overheads": {
+    "cost_per_hire": {"shrm_2025_mean_nonexec": 5475, "shrm_2025_mean_exec": 35879, "shrm_2025_median_nonexec": 1200, "n": 2371, "as_of": "2025-10-15", "confidence": "B", "source": "SHRM Talent Acquisition Benchmarking, 2025", "url": "https://www.shrm.org/", "note": "Mean is far above median because agency-sourced hires dominate the tail. For a Bay Area senior engineer the agency path is more representative."},
+    "agency_fee_pct_of_base": {"default": 0.22, "range": [0.18, 0.30], "confidence": "C", "note": "Contingency search for engineering in the Bay Area. Retained executive search runs higher."},
+    "sf_office_asking_rent_psf": {
+      "cushman_wakefield_q3_2026_overall": 72.68,
+      "cushman_wakefield_q3_2026_cbd_class_a": 79.03,
+      "savills_q3_2026_overall": 70.31,
+      "savills_q3_2026_class_a": 76.13,
+      "kidder_mathews_q3_2026_direct_fsg": 49.29,
+      "vacancy_rate_q3_2026": 0.293,
+      "unit": "USD per square foot per year, gross",
+      "confidence": "B",
+      "source": "Cushman & Wakefield MarketBeat San Francisco Office Q3 2026; Savills Market in Minutes Q3 2026; Kidder Mathews",
+      "url": "https://www.cushmanwakefield.com/en/united-states/insights/us-marketbeats/san-francisco-marketbeats/office",
+      "note": "Publishers disagree mainly because of lease basis (gross vs full-service-gross) and submarket mix. 29.3% vacancy means effective rents after concessions are materially below asking."
+    },
+    "sqft_per_employee": {"default": 175, "range": [120, 250], "confidence": "C", "note": "Post-hybrid densities. Pre-2020 benchmarks of 250-300 sqft are no longer representative."},
+    "annual_other_opex_per_employee": {
+      "confidence": "C",
+      "note": "Practitioner benchmarks for a Bay Area software engineer.",
+      "value": {
+        "equipment_amortised": 1733, "software_seats": 5000, "cloud_dev_infra": 6000,
+        "it_security_device_mgmt": 800, "hr_payroll_platform": 900, "allocated_business_insurance": 400
+      },
+      "equipment_detail": {"laptop": 3500, "peripherals_desk": 1700, "refresh_years": 3}
+    },
+    "span_of_control": {"default": 7, "range": [5, 10], "confidence": "C", "note": "Used only for the OPTIONAL allocated-management-overhead view, which is an allocation, not an incremental cash cost."}
+  },
+
+  "equity": {
+    "sec_filings": {
+      "confidence": "A",
+      "source": "SEC EDGAR XBRL company facts (us-gaap:ShareBasedCompensation, us-gaap:Revenues) and 10-K human capital disclosures",
+      "url": "https://www.sec.gov/edgar/searchedgar/companysearch",
+      "value": {
+        "Alphabet": {"fiscal_year": "FY2025", "sbc_usd": 24953000000, "revenue_usd": 402836000000, "employees": 190820, "employees_as_of": "2025-12-31", "employees_confidence": "B"},
+        "Meta": {"fiscal_year": "FY2025", "sbc_usd": 20430000000, "revenue_usd": 200970000000, "employees": 78865, "employees_as_of": "2025-12-31", "employees_confidence": "A", "employees_source_quote": "We had a global workforce of 78,865 employees as of December 31, 2025"},
+        "NVIDIA": {"fiscal_year": "FY2026 (ended 2026-01-25)", "sbc_usd": 6386000000, "revenue_usd": 215938000000, "employees": 42000, "employees_as_of": "2026-01", "employees_confidence": "C"},
+        "Microsoft": {"fiscal_year": "FY2026 (ended 2026-06-30)", "sbc_usd": 12400000000, "revenue_usd": 331840000000, "employees": 228000, "employees_as_of": "2026-06", "employees_confidence": "C"},
+        "Netflix": {"fiscal_year": "FY2025", "sbc_usd": null, "revenue_usd": 45183036000, "employees": 14000, "employees_as_of": "2025-12-31", "employees_confidence": "C"},
+        "Salesforce": {"fiscal_year": "FY2026 (ended 2026-01-31)", "sbc_usd": 3510000000, "revenue_usd": 41520000000, "employees": 83334, "employees_as_of": "2026-01-31", "employees_confidence": "B"}
+      },
+      "note": "SBC and revenue figures pulled directly from SEC XBRL facts. Headcount is not an XBRL fact; Meta's is quoted verbatim from the FY2025 10-K, the others are from company disclosure as reported. SBC-per-employee is a derived ratio, not a disclosed number, and it includes founder/executive mega-grants, so the mean sits well above the median employee's grant."
+    },
+    "carta_tenure": {
+      "median_tenure_years": 2.0,
+      "months_to_50pct_departure": 37,
+      "sample": "185,000+ employees at 3,600 startups",
+      "confidence": "B",
+      "source": "Carta — Employment tenure statistics for startup companies",
+      "url": "https://carta.com/data/employment-tenure-startups/",
+      "note": "Carta's own page reports a ~50% chance of departure by month 37, which sits just inside a 4-year vest. The commonly repeated '40% reach full vesting' figure is secondary and unverified against Carta's own pages."
+    },
+    "vesting_structure": {"years": 4, "cliff_months": 12, "cadence": "quarterly after cliff", "prevalence_pct_range": [85, 94], "confidence": "C", "source": "Carta vesting guide and secondary roundups (sources disagree: 85% vs 94%)", "url": "https://carta.com/learn/equity/stock-options/vesting/"},
+    "exercise_window": {"standard_days": 90, "share_who_exercise": 0.38, "confidence": "C", "source": "Secondary roundup attributing to Pave (2025); unverified against the primary report", "note": "Treat as indicative only. Extended (7-10 year) windows are increasingly common and materially change this number."},
+    "startup_survival": {
+      "seed_to_series_a_2022_cohort_within_2y": 0.17,
+      "seed_to_series_a_2018_cohort": 0.275,
+      "carta_shutdowns_2024": 966,
+      "carta_shutdowns_2023": 769,
+      "median_days_seed_to_series_a_q2_2025": 616,
+      "confidence": "B",
+      "source": "Carta — startup shutdown and graduation-rate data",
+      "url": "https://carta.com/data/startup-shutdowns-q1-2024/",
+      "note": "Shutdown counts are Carta customers only, not a population rate. Graduation rates are a poor proxy for 'equity ends up worth something' but are the best published anchor."
+    }
+  },
+
+  "turnover": {
+    "replacement_cost_pct_of_salary": {"range": [0.5, 2.0], "default_technical": 1.0, "confidence": "C", "source": "SHRM and Work Institute practitioner benchmarks", "note": "Covers recruiting, lost productivity during vacancy, ramp time of the replacement, and the drag on the team. Higher for senior/specialist roles."},
+    "ramp_to_full_productivity_months": {"default": 6, "range": [3, 12], "confidence": "C", "note": "For a mid-to-senior engineer in a large codebase. The model charges the ramp period as a partial-productivity loss in year one."}
+  }
+}
